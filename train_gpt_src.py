@@ -443,7 +443,7 @@ def run_pre_quant_ttt(h,base_model,device):
 	loader=ShuffledSequenceLoader(h,device)
 	chunk=[]
 	needed=h.pre_quant_ttt_chunk_tokens
-	while sum(t.numel() for t in chunk)<needed:
+	while sum(x.numel() for (x,y) in chunk)<needed:
 		x,y=loader.next_batch(h.pre_quant_ttt_bsz,1)
 		chunk.append((x,y))
 	frozen_prefixes=tuple(f'blocks.{i}.' for i in range(h.pre_quant_ttt_freeze_blocks))
