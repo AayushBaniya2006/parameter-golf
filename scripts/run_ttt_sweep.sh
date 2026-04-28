@@ -4,6 +4,7 @@
 set -euo pipefail
 
 cd /workspace/parameter-golf
+test -f /workspace/pg_modified.py || { echo "ERROR: /workspace/pg_modified.py not found; run pack_record.py + scp first"; exit 1; }
 
 LRS=(1e-4 3e-4 1e-3)
 EPOCHS_LIST=(12 18 24)
@@ -20,6 +21,7 @@ for lr in "${LRS[@]}"; do
         continue
       fi
       echo "=== starting ${run_id} ==="
+      set +e
       SEED=42 \
       VOCAB_SIZE=8192 \
       QK_GAIN_INIT=5.25 \
@@ -35,6 +37,11 @@ for lr in "${LRS[@]}"; do
       RUN_ID=${run_id} \
       torchrun --standalone --nproc_per_node=1 /workspace/pg_modified.py \
         2>&1 | tee logs/sweep/${run_id}.log
+      rc=${PIPESTATUS[0]}
+      set -e
+      if [ $rc -ne 0 ]; then
+        echo "WARN: ${run_id} exited rc=$rc; continuing to next config"
+      fi
     done
   done
 done
