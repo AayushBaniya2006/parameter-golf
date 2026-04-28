@@ -16,10 +16,13 @@ for lr in "${LRS[@]}"; do
   for ep in "${EPOCHS_LIST[@]}"; do
     for fz in "${FREEZES[@]}"; do
       run_id="sweep_lr${lr}_ep${ep}_fz${fz}"
-      if [ -f "logs/sweep/${run_id}.log" ]; then
-        echo "skip ${run_id} (already exists)"
+      log="logs/sweep/${run_id}.log"
+      # Treat as done only if the success marker is present; partial logs get re-run.
+      if [ -f "$log" ] && grep -q "timed_eval: pre-quantization post-ptt" "$log"; then
+        echo "skip ${run_id} (complete)"
         continue
       fi
+      [ -f "$log" ] && { echo "rerun ${run_id} (incomplete log)"; mv "$log" "${log}.partial.$(date +%s)"; }
       echo "=== starting ${run_id} ==="
       set +e
       SEED=42 \

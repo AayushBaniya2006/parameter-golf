@@ -18,8 +18,10 @@ def validate(record_dir, allow_fallback=False):
         assert 'val_bpb' in r, f"seed {seed} missing val_bpb"
         assert 'artifact_bytes' in r, f"seed {seed} missing artifact_bytes"
         assert r['artifact_bytes'] < 16_000_000, f"seed {seed} artifact > 16MB"
-    gate = 1.081 if allow_fallback else 1.075
-    gate_label = "fallback gate 1.081" if allow_fallback else "stretch gate 1.075"
+    # PR #1906 safety-net is 1.06136 — never submit a Track B regression.
+    # --allow-fallback only loosens to 1.075 in emergencies (e.g., #1906 disqualified).
+    gate = 1.075 if allow_fallback else 1.06136
+    gate_label = "fallback gate 1.075" if allow_fallback else "safety-net gate 1.06136"
     assert meta['val_bpb'] <= gate, f"val_bpb {meta['val_bpb']} above {gate_label}"
     code_bytes = os.path.getsize(os.path.join(record_dir, 'train_gpt.py'))
     assert code_bytes < 100_000, f"train_gpt.py unreasonably large: {code_bytes}"
