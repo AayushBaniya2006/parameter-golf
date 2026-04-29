@@ -55,8 +55,7 @@ run_seed() {
   LQER_ENABLED=1 LQER_ASYM_ENABLED=1 LQER_RANK=4 LQER_FACTOR_BITS=4 LQER_ASYM_GROUP=64 \
   AWQ_LITE_ENABLED=1 AWQ_LITE_BITS=8 AWQ_LITE_GROUP_SIZE=64 \
   FUSED_CE_ENABLED=1 COMPRESSOR=pergroup NCCL_NET=Socket \
-  "$@" \
-  torchrun --standalone --nproc_per_node=8 train_gpt_pr1908.py 2>&1 | tee "$log"
+  env "$@" torchrun --standalone --nproc_per_node=8 train_gpt_pr1908.py 2>&1 | tee "$log"
 }
 
 # Seed-42 should already exist as artifacts/repro_seed42/ — but if user changed
