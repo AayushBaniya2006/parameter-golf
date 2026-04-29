@@ -22,6 +22,7 @@ mkdir -p artifacts/final logs
 
 run_seed() {
   local seed="$1"
+  shift
   local out=artifacts/final/seed${seed}
   local log=logs/final_seed${seed}.log
   if [ -f "$log" ] && grep -q 'quantized_ttt_phased' "$log"; then
